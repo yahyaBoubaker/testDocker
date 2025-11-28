@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  api:
+    build: ./api
+    container_name: api_clienthub
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_USER: user
+      DB_PASSWORD: password
+      DB_NAME: clienthub
+      DB_PORT: 3306
+    depends_on:
+      - db
+    networks:
+      - clienthub-net
+
+  web:
+    image: nginx:alpine
+    container_name: web_clienthub
+    ports:
+      - "8080:80"
+    volumes:
+      - ./site:/usr/share/nginx/html
+    networks:
+      - clienthub-net
+
+  db:
+    image: mysql:8.0
+    container_name: db_clienthub
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: clienthub
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - clienthub-net
+
+networks:
+  clienthub-net:
+
+volumes:
+  db_data:
